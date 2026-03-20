@@ -6,7 +6,7 @@ import os
 
 os.makedirs("images", exist_ok=True)
 
-path = r"data\SOCR-HeightWeight.csv"
+path = os.path.join("data", "SOCR-HeightWeight.csv")
 data = pd.read_csv(path)
 values = data["Height(Inches)"]
 
