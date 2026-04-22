@@ -4,3 +4,5 @@ pandas
 seaborn
 matplotlib
 statsmodels
+wheel
+scikit-learn
