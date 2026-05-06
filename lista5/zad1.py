@@ -8,8 +8,9 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import r2_score, mean_squared_error
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 
+os.makedirs("images", exist_ok=True)
 
-path = os.path.join("data", "housing.csv")
+path = os.path.join("data", "BostonHousing.csv")
 df = pd.read_csv(path)
 
 print(df.head())
@@ -17,9 +18,9 @@ print(df.info())
 
 df = df.dropna()
 
-TARGET = "Price"
+TARGET = "medv"
 
-X = df.drop(columns=[TARGET, "Address"])
+X = df.drop(columns=[TARGET])
 y = df[TARGET]
 
 X_train, X_test, y_train, y_test = train_test_split(
@@ -30,6 +31,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 
 model = LinearRegression()
+
 model.fit(X_train, y_train)
 
 y_pred = model.predict(X_test)
@@ -65,38 +67,25 @@ min_val = min(y_test.min(), y_pred.min())
 max_val = max(y_test.max(), y_pred.max())
 
 plt.plot([min_val, max_val], [min_val, max_val], 'r--')
-
 plt.xlabel("Rzeczywiste ceny")
 plt.ylabel("Przewidywane ceny")
 plt.title("Rzeczywiste vs przewidywane")
-
 plt.grid(True)
+plt.savefig(os.path.join("images", "predicted_vs_actual.png"))
 plt.show()
 
 residuals = y_test - y_pred
 
 plt.figure(figsize=(8, 6))
-
 plt.scatter(y_pred, residuals)
-
 plt.axhline(y=0, color='red', linestyle='--')
-
 plt.xlabel("Przewidywane wartości")
 plt.ylabel("Reszty")
 plt.title("Wykres reszt")
-
 plt.grid(True)
+plt.savefig(os.path.join("images", "residuals_plot.png"))
 plt.show()
 
 correlation_matrix = X.corr()
 
 print(correlation_matrix)
-
-vif_data = pd.DataFrame()
-vif_data["Feature"] = X.columns
-vif_data["VIF"] = [
-    variance_inflation_factor(X.values, i)
-    for i in range(X.shape[1])
-]
-
-print(vif_data)
