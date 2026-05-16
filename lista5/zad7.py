@@ -9,33 +9,46 @@ from sklearn.metrics import r2_score, mean_squared_error
 from statsmodels.tools.tools import add_constant
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 
-path = os.path.join("data", "BostonHousing.csv")
+path = os.path.join("data", "mpg.csv")
 df = pd.read_csv(path)
 
 df = df.dropna()
 
-TARGET = "medv"
+TARGET = "mpg"
 
-# =========================
-# MODELE
-# =========================
+df = pd.get_dummies(
+    df,
+    columns=["origin"],
+    drop_first=True
+)
 
 model_features = {
+
     "Pełny": [
-        "crim", "zn", "indus", "chas", "nox",
-        "rm", "age", "dis", "rad", "tax",
-        "ptratio", "b", "lstat"
+        "cylinders",
+        "displacement",
+        "horsepower",
+        "weight",
+        "acceleration",
+        "model_year",
+        "origin_japan",
+        "origin_usa"
     ],
 
     "Po eliminacji": [
-        "crim", "zn", "chas", "nox",
-        "rm", "dis", "rad", "tax",
-        "ptratio", "b", "lstat"
+        "horsepower",
+        "weight",
+        "acceleration",
+        "model_year",
+        "origin_japan",
+        "origin_usa"
     ],
 
     "Tylko twarde dane": [
-        "crim", "zn", "rm", "age",
-        "tax", "ptratio", "lstat"
+        "cylinders",
+        "horsepower",
+        "weight",
+        "displacement"
     ]
 }
 
@@ -77,6 +90,7 @@ for model_name, features in model_features.items():
     # =========================
 
     X_vif = add_constant(X)
+    X_vif = X_vif.astype(float)
 
     vif_values = []
 
@@ -115,18 +129,14 @@ for model_name, features in model_features.items():
     print("\nVIF:")
     print(vif_df)
 
-# =========================
-# PORÓWNANIE
-# =========================
-
 results_df = pd.DataFrame(results)
 
 print("\n===== PORÓWNANIE MODELI =====")
 print(results_df)
 
 best_model = results_df.sort_values(
-    by=["R2", "RMSE"],
-    ascending=[False, True]
+    by=["Średni VIF", "R2", "RMSE"],
+    ascending=[True, False, True]
 ).iloc[0]
 
 print("\n===== NAJLEPSZY MODEL =====")
